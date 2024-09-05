@@ -2,7 +2,7 @@ import { generateSigner } from "@metaplex-foundation/umi";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import test from "ava";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { create } from '../src';
+import { addToCollectionV1 } from '../src';
 import { createUmi } from "./_setup";
 
 test('create a new account', async (t) => {
@@ -11,7 +11,7 @@ test('create a new account', async (t) => {
     const address = generateSigner(umi);
 
     // When we create a new account.
-    const tx = await create(umi, { address, arg1: 1, arg2: 2 }).sendAndConfirm(umi);
+    const tx = await addToCollectionV1(umi, { collection: address.publicKey }).sendAndConfirm(umi);
 
     const compute = Number((await umi.rpc.getTransaction(tx.signature))?.meta.computeUnitsConsumed);
     const account = await umi.rpc.getAccount(address.publicKey);

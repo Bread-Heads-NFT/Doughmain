@@ -9,48 +9,59 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
 /// Accounts.
-pub struct Create {
-    /// The address of the new account
-    pub address: solana_program::pubkey::Pubkey,
-    /// The authority of the new account
-    pub authority: solana_program::pubkey::Pubkey,
-    /// The account paying for the storage fees
+pub struct AddToAssetV1 {
+    /// The address of the asset that will host the Dough Pet
+    pub asset: solana_program::pubkey::Pubkey,
+    /// The address of the collection with a LinkedAppData for Dough Pets
+    pub collection: solana_program::pubkey::Pubkey,
+    /// The payer for additional rent
     pub payer: solana_program::pubkey::Pubkey,
+    /// The program signer which is writing to the Dough Pet
+    pub program_signer: solana_program::pubkey::Pubkey,
+    /// The MPL Core program
+    pub mpl_core_program: solana_program::pubkey::Pubkey,
     /// The system program
     pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl Create {
+impl AddToAssetV1 {
     pub fn instruction(
         &self,
-        args: CreateInstructionArgs,
+        args: AddToAssetV1InstructionArgs,
     ) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: CreateInstructionArgs,
+        args: AddToAssetV1InstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.address,
-            true,
+            self.asset, false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.authority,
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.collection,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.program_signer,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.mpl_core_program,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = CreateInstructionData::new().try_to_vec().unwrap();
+        let mut data = AddToAssetV1InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -63,62 +74,80 @@ impl Create {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-struct CreateInstructionData {
+struct AddToAssetV1InstructionData {
     discriminator: u8,
 }
 
-impl CreateInstructionData {
+impl AddToAssetV1InstructionData {
     fn new() -> Self {
-        Self { discriminator: 0 }
+        Self { discriminator: 1 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CreateInstructionArgs {
-    pub arg1: u16,
-    pub arg2: u32,
+pub struct AddToAssetV1InstructionArgs {
+    pub name: String,
 }
 
-/// Instruction builder for `Create`.
+/// Instruction builder for `AddToAssetV1`.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` address
-///   1. `[]` authority
+///   0. `[writable]` asset
+///   1. `[writable]` collection
 ///   2. `[writable, signer]` payer
-///   3. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   3. `[]` program_signer
+///   4. `[optional]` mpl_core_program (default to `CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d`)
+///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
-pub struct CreateBuilder {
-    address: Option<solana_program::pubkey::Pubkey>,
-    authority: Option<solana_program::pubkey::Pubkey>,
+pub struct AddToAssetV1Builder {
+    asset: Option<solana_program::pubkey::Pubkey>,
+    collection: Option<solana_program::pubkey::Pubkey>,
     payer: Option<solana_program::pubkey::Pubkey>,
+    program_signer: Option<solana_program::pubkey::Pubkey>,
+    mpl_core_program: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    arg1: Option<u16>,
-    arg2: Option<u32>,
+    name: Option<String>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl CreateBuilder {
+impl AddToAssetV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
-    /// The address of the new account
+    /// The address of the asset that will host the Dough Pet
     #[inline(always)]
-    pub fn address(&mut self, address: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.address = Some(address);
+    pub fn asset(&mut self, asset: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.asset = Some(asset);
         self
     }
-    /// The authority of the new account
+    /// The address of the collection with a LinkedAppData for Dough Pets
     #[inline(always)]
-    pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.authority = Some(authority);
+    pub fn collection(&mut self, collection: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.collection = Some(collection);
         self
     }
-    /// The account paying for the storage fees
+    /// The payer for additional rent
     #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
+        self
+    }
+    /// The program signer which is writing to the Dough Pet
+    #[inline(always)]
+    pub fn program_signer(&mut self, program_signer: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.program_signer = Some(program_signer);
+        self
+    }
+    /// `[optional account, default to 'CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d']`
+    /// The MPL Core program
+    #[inline(always)]
+    pub fn mpl_core_program(
+        &mut self,
+        mpl_core_program: solana_program::pubkey::Pubkey,
+    ) -> &mut Self {
+        self.mpl_core_program = Some(mpl_core_program);
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -129,13 +158,8 @@ impl CreateBuilder {
         self
     }
     #[inline(always)]
-    pub fn arg1(&mut self, arg1: u16) -> &mut Self {
-        self.arg1 = Some(arg1);
-        self
-    }
-    #[inline(always)]
-    pub fn arg2(&mut self, arg2: u32) -> &mut Self {
-        self.arg2 = Some(arg2);
+    pub fn name(&mut self, name: String) -> &mut Self {
+        self.name = Some(name);
         self
     }
     /// Add an aditional account to the instruction.
@@ -158,62 +182,75 @@ impl CreateBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = Create {
-            address: self.address.expect("address is not set"),
-            authority: self.authority.expect("authority is not set"),
+        let accounts = AddToAssetV1 {
+            asset: self.asset.expect("asset is not set"),
+            collection: self.collection.expect("collection is not set"),
             payer: self.payer.expect("payer is not set"),
+            program_signer: self.program_signer.expect("program_signer is not set"),
+            mpl_core_program: self.mpl_core_program.unwrap_or(solana_program::pubkey!(
+                "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+            )),
             system_program: self
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = CreateInstructionArgs {
-            arg1: self.arg1.clone().expect("arg1 is not set"),
-            arg2: self.arg2.clone().expect("arg2 is not set"),
+        let args = AddToAssetV1InstructionArgs {
+            name: self.name.clone().expect("name is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
 }
 
-/// `create` CPI accounts.
-pub struct CreateCpiAccounts<'a, 'b> {
-    /// The address of the new account
-    pub address: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The authority of the new account
-    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The account paying for the storage fees
+/// `add_to_asset_v1` CPI accounts.
+pub struct AddToAssetV1CpiAccounts<'a, 'b> {
+    /// The address of the asset that will host the Dough Pet
+    pub asset: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The address of the collection with a LinkedAppData for Dough Pets
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The payer for additional rent
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The program signer which is writing to the Dough Pet
+    pub program_signer: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The MPL Core program
+    pub mpl_core_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The system program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `create` CPI instruction.
-pub struct CreateCpi<'a, 'b> {
+/// `add_to_asset_v1` CPI instruction.
+pub struct AddToAssetV1Cpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The address of the new account
-    pub address: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The authority of the new account
-    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The account paying for the storage fees
+    /// The address of the asset that will host the Dough Pet
+    pub asset: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The address of the collection with a LinkedAppData for Dough Pets
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The payer for additional rent
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The program signer which is writing to the Dough Pet
+    pub program_signer: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The MPL Core program
+    pub mpl_core_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The system program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
-    pub __args: CreateInstructionArgs,
+    pub __args: AddToAssetV1InstructionArgs,
 }
 
-impl<'a, 'b> CreateCpi<'a, 'b> {
+impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: CreateCpiAccounts<'a, 'b>,
-        args: CreateInstructionArgs,
+        accounts: AddToAssetV1CpiAccounts<'a, 'b>,
+        args: AddToAssetV1InstructionArgs,
     ) -> Self {
         Self {
             __program: program,
-            address: accounts.address,
-            authority: accounts.authority,
+            asset: accounts.asset,
+            collection: accounts.collection,
             payer: accounts.payer,
+            program_signer: accounts.program_signer,
+            mpl_core_program: accounts.mpl_core_program,
             system_program: accounts.system_program,
             __args: args,
         }
@@ -251,18 +288,26 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.address.key,
-            true,
+            *self.asset.key,
+            false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.authority.key,
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.collection.key,
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.payer.key,
             true,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.program_signer.key,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.mpl_core_program.key,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.system_program.key,
@@ -275,7 +320,7 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = CreateInstructionData::new().try_to_vec().unwrap();
+        let mut data = AddToAssetV1InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -284,11 +329,13 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(6 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
-        account_infos.push(self.address.clone());
-        account_infos.push(self.authority.clone());
+        account_infos.push(self.asset.clone());
+        account_infos.push(self.collection.clone());
         account_infos.push(self.payer.clone());
+        account_infos.push(self.program_signer.clone());
+        account_infos.push(self.mpl_core_program.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -302,54 +349,72 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `Create` via CPI.
+/// Instruction builder for `AddToAssetV1` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` address
-///   1. `[]` authority
+///   0. `[writable]` asset
+///   1. `[writable]` collection
 ///   2. `[writable, signer]` payer
-///   3. `[]` system_program
-pub struct CreateCpiBuilder<'a, 'b> {
-    instruction: Box<CreateCpiBuilderInstruction<'a, 'b>>,
+///   3. `[]` program_signer
+///   4. `[]` mpl_core_program
+///   5. `[]` system_program
+pub struct AddToAssetV1CpiBuilder<'a, 'b> {
+    instruction: Box<AddToAssetV1CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
+impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(CreateCpiBuilderInstruction {
+        let instruction = Box::new(AddToAssetV1CpiBuilderInstruction {
             __program: program,
-            address: None,
-            authority: None,
+            asset: None,
+            collection: None,
             payer: None,
+            program_signer: None,
+            mpl_core_program: None,
             system_program: None,
-            arg1: None,
-            arg2: None,
+            name: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
-    /// The address of the new account
+    /// The address of the asset that will host the Dough Pet
     #[inline(always)]
-    pub fn address(
-        &mut self,
-        address: &'b solana_program::account_info::AccountInfo<'a>,
-    ) -> &mut Self {
-        self.instruction.address = Some(address);
+    pub fn asset(&mut self, asset: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.asset = Some(asset);
         self
     }
-    /// The authority of the new account
+    /// The address of the collection with a LinkedAppData for Dough Pets
     #[inline(always)]
-    pub fn authority(
+    pub fn collection(
         &mut self,
-        authority: &'b solana_program::account_info::AccountInfo<'a>,
+        collection: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.authority = Some(authority);
+        self.instruction.collection = Some(collection);
         self
     }
-    /// The account paying for the storage fees
+    /// The payer for additional rent
     #[inline(always)]
     pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
+        self
+    }
+    /// The program signer which is writing to the Dough Pet
+    #[inline(always)]
+    pub fn program_signer(
+        &mut self,
+        program_signer: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.program_signer = Some(program_signer);
+        self
+    }
+    /// The MPL Core program
+    #[inline(always)]
+    pub fn mpl_core_program(
+        &mut self,
+        mpl_core_program: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.mpl_core_program = Some(mpl_core_program);
         self
     }
     /// The system program
@@ -362,13 +427,8 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
         self
     }
     #[inline(always)]
-    pub fn arg1(&mut self, arg1: u16) -> &mut Self {
-        self.instruction.arg1 = Some(arg1);
-        self
-    }
-    #[inline(always)]
-    pub fn arg2(&mut self, arg2: u32) -> &mut Self {
-        self.instruction.arg2 = Some(arg2);
+    pub fn name(&mut self, name: String) -> &mut Self {
+        self.instruction.name = Some(name);
         self
     }
     /// Add an additional account to the instruction.
@@ -412,18 +472,27 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = CreateInstructionArgs {
-            arg1: self.instruction.arg1.clone().expect("arg1 is not set"),
-            arg2: self.instruction.arg2.clone().expect("arg2 is not set"),
+        let args = AddToAssetV1InstructionArgs {
+            name: self.instruction.name.clone().expect("name is not set"),
         };
-        let instruction = CreateCpi {
+        let instruction = AddToAssetV1Cpi {
             __program: self.instruction.__program,
 
-            address: self.instruction.address.expect("address is not set"),
+            asset: self.instruction.asset.expect("asset is not set"),
 
-            authority: self.instruction.authority.expect("authority is not set"),
+            collection: self.instruction.collection.expect("collection is not set"),
 
             payer: self.instruction.payer.expect("payer is not set"),
+
+            program_signer: self
+                .instruction
+                .program_signer
+                .expect("program_signer is not set"),
+
+            mpl_core_program: self
+                .instruction
+                .mpl_core_program
+                .expect("mpl_core_program is not set"),
 
             system_program: self
                 .instruction
@@ -438,14 +507,15 @@ impl<'a, 'b> CreateCpiBuilder<'a, 'b> {
     }
 }
 
-struct CreateCpiBuilderInstruction<'a, 'b> {
+struct AddToAssetV1CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
-    address: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    asset: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    program_signer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mpl_core_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    arg1: Option<u16>,
-    arg2: Option<u32>,
+    name: Option<String>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

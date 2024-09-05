@@ -19,6 +19,12 @@ pub enum BglDoughError {
     /// 2 (0x2) - Error serializing account
     #[error("Error serializing account")]
     SerializationError,
+    /// 3 (0x3) - Invalid MPL Core Program
+    #[error("Invalid MPL Core Program")]
+    InvalidMplCoreProgram,
+    /// 4 (0x4) - Invalid Program Signer
+    #[error("Invalid Program Signer")]
+    InvalidProgramSigner,
 }
 
 impl solana_program::program_error::PrintProgramError for BglDoughError {

@@ -10,7 +10,9 @@ use borsh::BorshSerialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct MyData {
-    pub field1: u16,
-    pub field2: u32,
+pub struct DoughData {
+    pub name: String,
+    pub health: u8,
+    pub happiness: u8,
+    pub hunger: u8,
 }

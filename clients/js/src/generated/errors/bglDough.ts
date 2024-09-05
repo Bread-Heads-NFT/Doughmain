@@ -54,6 +54,32 @@ export class SerializationErrorError extends ProgramError {
 codeToErrorMap.set(0x2, SerializationErrorError);
 nameToErrorMap.set('SerializationError', SerializationErrorError);
 
+/** InvalidMplCoreProgram: Invalid MPL Core Program */
+export class InvalidMplCoreProgramError extends ProgramError {
+  override readonly name: string = 'InvalidMplCoreProgram';
+
+  readonly code: number = 0x3; // 3
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid MPL Core Program', program, cause);
+  }
+}
+codeToErrorMap.set(0x3, InvalidMplCoreProgramError);
+nameToErrorMap.set('InvalidMplCoreProgram', InvalidMplCoreProgramError);
+
+/** InvalidProgramSigner: Invalid Program Signer */
+export class InvalidProgramSignerError extends ProgramError {
+  override readonly name: string = 'InvalidProgramSigner';
+
+  readonly code: number = 0x4; // 4
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid Program Signer', program, cause);
+  }
+}
+codeToErrorMap.set(0x4, InvalidProgramSignerError);
+nameToErrorMap.set('InvalidProgramSigner', InvalidProgramSignerError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

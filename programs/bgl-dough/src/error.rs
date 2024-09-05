@@ -17,6 +17,12 @@ pub enum BglDoughError {
     /// 2 - Error serializing account
     #[error("Error serializing account")]
     SerializationError,
+    /// 3 - Invalid MPL Core Program
+    #[error("Invalid MPL Core Program")]
+    InvalidMplCoreProgram,
+    /// 4 - Invalid Program Signer
+    #[error("Invalid Program Signer")]
+    InvalidProgramSigner,
 }
 
 impl PrintProgramError for BglDoughError {

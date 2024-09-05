@@ -15,39 +15,39 @@ kinobi.update(
   })
 );
 
-// Update accounts.
-kinobi.update(
-  new k.updateAccountsVisitor({
-    myPdaAccount: {
-      seeds: [
-        k.constantPdaSeedNodeFromString("myPdaAccount"),
-        k.programIdPdaSeedNode(),
-        k.variablePdaSeedNode("authority", k.publicKeyTypeNode(), "The address of the authority"),
-        k.variablePdaSeedNode("name", k.stringTypeNode(), "The name of the account"),
-      ],
-    },
-  })
-);
+// // Update accounts.
+// kinobi.update(
+//   new k.updateAccountsVisitor({
+//     myPdaAccount: {
+//       seeds: [
+//         k.constantPdaSeedNodeFromString("myPdaAccount"),
+//         k.programIdPdaSeedNode(),
+//         k.variablePdaSeedNode("authority", k.publicKeyTypeNode(), "The address of the authority"),
+//         k.variablePdaSeedNode("name", k.stringTypeNode(), "The name of the account"),
+//       ],
+//     },
+//   })
+// );
 
-// Update instructions.
-kinobi.update(
-  new k.updateInstructionsVisitor({
-    create: {
-      byteDeltas: [
-        k.instructionByteDeltaNode(k.accountLinkNode("myAccount")),
-      ],
-    },
-  })
-);
+// // Update instructions.
+// kinobi.update(
+//   new k.updateInstructionsVisitor({
+//     create: {
+//       byteDeltas: [
+//         k.instructionByteDeltaNode(k.accountLinkNode("myAccount")),
+//       ],
+//     },
+//   })
+// );
 
-// Set ShankAccount discriminator.
-const key = (name) => ({ field: "key", value: k.enumValueNode("Key", name) });
-kinobi.update(
-  new k.setAccountDiscriminatorFromFieldVisitor({
-    myAccount: key("MyAccount"),
-    myPdaAccount: key("MyPdaAccount"),
-  })
-);
+// // Set ShankAccount discriminator.
+// const key = (name) => ({ field: "key", value: k.enumValueNode("Key", name) });
+// kinobi.update(
+//   new k.setAccountDiscriminatorFromFieldVisitor({
+//     myAccount: key("MyAccount"),
+//     myPdaAccount: key("MyPdaAccount"),
+//   })
+// );
 
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js", "src", "generated");

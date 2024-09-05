@@ -3,22 +3,14 @@
   "name": "bgl_dough_program",
   "instructions": [
     {
-      "name": "Create",
+      "name": "AddToCollectionV1",
       "accounts": [
         {
-          "name": "address",
+          "name": "collection",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The address of the new account"
-          ]
-        },
-        {
-          "name": "authority",
-          "isMut": false,
           "isSigner": false,
           "docs": [
-            "The authority of the new account"
+            "The address of the collection"
           ]
         },
         {
@@ -26,7 +18,82 @@
           "isMut": true,
           "isSigner": true,
           "docs": [
-            "The account paying for the storage fees"
+            "The payer for additional rent"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "isOptional": true,
+          "docs": [
+            "Authority for the collection. If not provided, the payer will be used."
+          ]
+        },
+        {
+          "name": "mplCoreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "AddToAssetV1",
+      "accounts": [
+        {
+          "name": "asset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the asset that will host the Dough Pet"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the collection with a LinkedAppData for Dough Pets"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The payer for additional rent"
+          ]
+        },
+        {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The program signer which is writing to the Dough Pet"
+          ]
+        },
+        {
+          "name": "mplCoreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
           ]
         },
         {
@@ -40,108 +107,51 @@
       ],
       "args": [
         {
-          "name": "createArgs",
+          "name": "addToAssetV1Args",
           "type": {
-            "defined": "CreateArgs"
+            "defined": "AddToAssetV1Args"
           }
         }
       ],
       "discriminant": {
         "type": "u8",
-        "value": 0
-      }
-    }
-  ],
-  "accounts": [
-    {
-      "name": "MyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": {
-              "defined": "Key"
-            }
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "data",
-            "type": {
-              "defined": "MyData"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "MyPdaAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": {
-              "defined": "Key"
-            }
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
+        "value": 1
       }
     }
   ],
   "types": [
     {
-      "name": "CreateArgs",
+      "name": "AddToAssetV1Args",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "arg1",
-            "type": "u16"
-          },
-          {
-            "name": "arg2",
-            "type": "u32"
+            "name": "name",
+            "type": "string"
           }
         ]
       }
     },
     {
-      "name": "MyData",
+      "name": "DoughData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "field1",
-            "type": "u16"
+            "name": "name",
+            "type": "string"
           },
           {
-            "name": "field2",
-            "type": "u32"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Key",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Uninitialized"
+            "name": "health",
+            "type": "u8"
           },
           {
-            "name": "MyAccount"
+            "name": "happiness",
+            "type": "u8"
           },
           {
-            "name": "MyPdaAccount"
+            "name": "hunger",
+            "type": "u8"
           }
         ]
       }
@@ -162,6 +172,16 @@
       "code": 2,
       "name": "SerializationError",
       "msg": "Error serializing account"
+    },
+    {
+      "code": 3,
+      "name": "InvalidMplCoreProgram",
+      "msg": "Invalid MPL Core Program"
+    },
+    {
+      "code": 4,
+      "name": "InvalidProgramSigner",
+      "msg": "Invalid Program Signer"
     }
   ],
   "metadata": {

@@ -7,7 +7,6 @@
  */
 
 import {
-  ACCOUNT_HEADER_SIZE,
   Context,
   Pda,
   PublicKey,
@@ -19,11 +18,8 @@ import {
   Serializer,
   mapSerializer,
   struct,
-  u16,
-  u32,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { getMyAccountSize } from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
@@ -31,50 +27,47 @@ import {
 } from '../shared';
 
 // Accounts.
-export type CreateInstructionAccounts = {
-  /** The address of the new account */
-  address: Signer;
-  /** The authority of the new account */
-  authority?: PublicKey | Pda;
-  /** The account paying for the storage fees */
+export type AddToCollectionV1InstructionAccounts = {
+  /** The address of the collection */
+  collection: PublicKey | Pda;
+  /** The payer for additional rent */
   payer?: Signer;
+  /** Authority for the collection. If not provided, the payer will be used. */
+  authority?: Signer;
+  /** The MPL Core program */
+  mplCoreProgram?: PublicKey | Pda;
   /** The system program */
   systemProgram?: PublicKey | Pda;
 };
 
 // Data.
-export type CreateInstructionData = {
-  discriminator: number;
-  arg1: number;
-  arg2: number;
-};
+export type AddToCollectionV1InstructionData = { discriminator: number };
 
-export type CreateInstructionDataArgs = { arg1: number; arg2: number };
+export type AddToCollectionV1InstructionDataArgs = {};
 
-export function getCreateInstructionDataSerializer(): Serializer<
-  CreateInstructionDataArgs,
-  CreateInstructionData
+export function getAddToCollectionV1InstructionDataSerializer(): Serializer<
+  AddToCollectionV1InstructionDataArgs,
+  AddToCollectionV1InstructionData
 > {
-  return mapSerializer<CreateInstructionDataArgs, any, CreateInstructionData>(
-    struct<CreateInstructionData>(
-      [
-        ['discriminator', u8()],
-        ['arg1', u16()],
-        ['arg2', u32()],
-      ],
-      { description: 'CreateInstructionData' }
-    ),
+  return mapSerializer<
+    AddToCollectionV1InstructionDataArgs,
+    any,
+    AddToCollectionV1InstructionData
+  >(
+    struct<AddToCollectionV1InstructionData>([['discriminator', u8()]], {
+      description: 'AddToCollectionV1InstructionData',
+    }),
     (value) => ({ ...value, discriminator: 0 })
-  ) as Serializer<CreateInstructionDataArgs, CreateInstructionData>;
+  ) as Serializer<
+    AddToCollectionV1InstructionDataArgs,
+    AddToCollectionV1InstructionData
+  >;
 }
 
-// Args.
-export type CreateInstructionArgs = CreateInstructionDataArgs;
-
 // Instruction.
-export function create(
-  context: Pick<Context, 'identity' | 'payer' | 'programs'>,
-  input: CreateInstructionAccounts & CreateInstructionArgs
+export function addToCollectionV1(
+  context: Pick<Context, 'payer' | 'programs'>,
+  input: AddToCollectionV1InstructionAccounts
 ): TransactionBuilder {
   // Program ID.
   const programId = context.programs.getPublicKey(
@@ -84,37 +77,43 @@ export function create(
 
   // Accounts.
   const resolvedAccounts = {
-    address: {
+    collection: {
       index: 0,
       isWritable: true as boolean,
-      value: input.address ?? null,
-    },
-    authority: {
-      index: 1,
-      isWritable: false as boolean,
-      value: input.authority ?? null,
+      value: input.collection ?? null,
     },
     payer: {
-      index: 2,
+      index: 1,
       isWritable: true as boolean,
       value: input.payer ?? null,
     },
-    systemProgram: {
+    authority: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
+    mplCoreProgram: {
       index: 3,
+      isWritable: false as boolean,
+      value: input.mplCoreProgram ?? null,
+    },
+    systemProgram: {
+      index: 4,
       isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
 
-  // Arguments.
-  const resolvedArgs: CreateInstructionArgs = { ...input };
-
   // Default values.
-  if (!resolvedAccounts.authority.value) {
-    resolvedAccounts.authority.value = context.identity.publicKey;
-  }
   if (!resolvedAccounts.payer.value) {
     resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.mplCoreProgram.value) {
+    resolvedAccounts.mplCoreProgram.value = context.programs.getPublicKey(
+      'mplCore',
+      'CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d'
+    );
+    resolvedAccounts.mplCoreProgram.isWritable = false;
   }
   if (!resolvedAccounts.systemProgram.value) {
     resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
@@ -137,12 +136,10 @@ export function create(
   );
 
   // Data.
-  const data = getCreateInstructionDataSerializer().serialize(
-    resolvedArgs as CreateInstructionDataArgs
-  );
+  const data = getAddToCollectionV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = getMyAccountSize() + ACCOUNT_HEADER_SIZE;
+  const bytesCreatedOnChain = 0;
 
   return transactionBuilder([
     { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
