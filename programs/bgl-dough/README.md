@@ -1,6 +1,6 @@
-# Mpl Project Name
+# Bgl Dough
 
-My project description
+The main Dough contract for the virtual pet that is used throughout your Doughmain.
 
 ## Building
 
