@@ -18,7 +18,6 @@ import {
 import {
   Serializer,
   mapSerializer,
-  string,
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
@@ -29,7 +28,7 @@ import {
 } from '../shared';
 
 // Accounts.
-export type AddToAssetV1InstructionAccounts = {
+export type CrankV1InstructionAccounts = {
   /** The address of the asset that will host the Dough Pet */
   asset: PublicKey | Pda;
   /** The address of the collection with a LinkedAppData for Dough Pets */
@@ -45,40 +44,26 @@ export type AddToAssetV1InstructionAccounts = {
 };
 
 // Data.
-export type AddToAssetV1InstructionData = {
-  discriminator: number;
-  name: string;
-};
+export type CrankV1InstructionData = { discriminator: number };
 
-export type AddToAssetV1InstructionDataArgs = { name: string };
+export type CrankV1InstructionDataArgs = {};
 
-export function getAddToAssetV1InstructionDataSerializer(): Serializer<
-  AddToAssetV1InstructionDataArgs,
-  AddToAssetV1InstructionData
+export function getCrankV1InstructionDataSerializer(): Serializer<
+  CrankV1InstructionDataArgs,
+  CrankV1InstructionData
 > {
-  return mapSerializer<
-    AddToAssetV1InstructionDataArgs,
-    any,
-    AddToAssetV1InstructionData
-  >(
-    struct<AddToAssetV1InstructionData>(
-      [
-        ['discriminator', u8()],
-        ['name', string()],
-      ],
-      { description: 'AddToAssetV1InstructionData' }
-    ),
-    (value) => ({ ...value, discriminator: 1 })
-  ) as Serializer<AddToAssetV1InstructionDataArgs, AddToAssetV1InstructionData>;
+  return mapSerializer<CrankV1InstructionDataArgs, any, CrankV1InstructionData>(
+    struct<CrankV1InstructionData>([['discriminator', u8()]], {
+      description: 'CrankV1InstructionData',
+    }),
+    (value) => ({ ...value, discriminator: 2 })
+  ) as Serializer<CrankV1InstructionDataArgs, CrankV1InstructionData>;
 }
 
-// Args.
-export type AddToAssetV1InstructionArgs = AddToAssetV1InstructionDataArgs;
-
 // Instruction.
-export function addToAssetV1(
+export function crankV1(
   context: Pick<Context, 'payer' | 'programs'>,
-  input: AddToAssetV1InstructionAccounts & AddToAssetV1InstructionArgs
+  input: CrankV1InstructionAccounts
 ): TransactionBuilder {
   // Program ID.
   const programId = context.programs.getPublicKey(
@@ -120,9 +105,6 @@ export function addToAssetV1(
     },
   } satisfies ResolvedAccountsWithIndices;
 
-  // Arguments.
-  const resolvedArgs: AddToAssetV1InstructionArgs = { ...input };
-
   // Default values.
   if (!resolvedAccounts.payer.value) {
     resolvedAccounts.payer.value = context.payer;
@@ -160,9 +142,7 @@ export function addToAssetV1(
   );
 
   // Data.
-  const data = getAddToAssetV1InstructionDataSerializer().serialize(
-    resolvedArgs as AddToAssetV1InstructionDataArgs
-  );
+  const data = getCrankV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

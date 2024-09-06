@@ -15,4 +15,6 @@ pub struct DoughData {
     pub health: u8,
     pub happiness: u8,
     pub hunger: u8,
+    pub points: u32,
+    pub last_crank: i64,
 }

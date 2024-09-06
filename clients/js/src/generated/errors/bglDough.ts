@@ -80,6 +80,48 @@ export class InvalidProgramSignerError extends ProgramError {
 codeToErrorMap.set(0x4, InvalidProgramSignerError);
 nameToErrorMap.set('InvalidProgramSigner', InvalidProgramSignerError);
 
+/** InvalidAssetEscrow: Invalid Asset Escrow */
+export class InvalidAssetEscrowError extends ProgramError {
+  override readonly name: string = 'InvalidAssetEscrow';
+
+  readonly code: number = 0x5; // 5
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid Asset Escrow', program, cause);
+  }
+}
+codeToErrorMap.set(0x5, InvalidAssetEscrowError);
+nameToErrorMap.set('InvalidAssetEscrow', InvalidAssetEscrowError);
+
+/** InvalidTokenProgram: Invalid Token Program */
+export class InvalidTokenProgramError extends ProgramError {
+  override readonly name: string = 'InvalidTokenProgram';
+
+  readonly code: number = 0x6; // 6
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid Token Program', program, cause);
+  }
+}
+codeToErrorMap.set(0x6, InvalidTokenProgramError);
+nameToErrorMap.set('InvalidTokenProgram', InvalidTokenProgramError);
+
+/** InvalidAssociatedTokenProgram: Invalid Associated Token Program */
+export class InvalidAssociatedTokenProgramError extends ProgramError {
+  override readonly name: string = 'InvalidAssociatedTokenProgram';
+
+  readonly code: number = 0x7; // 7
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid Associated Token Program', program, cause);
+  }
+}
+codeToErrorMap.set(0x7, InvalidAssociatedTokenProgramError);
+nameToErrorMap.set(
+  'InvalidAssociatedTokenProgram',
+  InvalidAssociatedTokenProgramError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

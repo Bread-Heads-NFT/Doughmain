@@ -8,7 +8,7 @@ use crate::{
     error::BglDoughError, instruction::accounts::AddToCollectionV1Accounts, state::PROGRAM_SIGNER,
 };
 
-pub(crate) fn add_to_collection<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
+pub(crate) fn add_to_collection_v1<'a>(accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     // Accounts.
     let ctx = AddToCollectionV1Accounts::context(accounts)?;
 

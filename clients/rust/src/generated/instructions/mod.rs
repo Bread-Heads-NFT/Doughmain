@@ -7,6 +7,10 @@
 
 pub(crate) mod r#add_to_asset_v1;
 pub(crate) mod r#add_to_collection_v1;
+pub(crate) mod r#crank_v1;
+pub(crate) mod r#feed_spl_token_v1;
 
 pub use self::r#add_to_asset_v1::*;
 pub use self::r#add_to_collection_v1::*;
+pub use self::r#crank_v1::*;
+pub use self::r#feed_spl_token_v1::*;

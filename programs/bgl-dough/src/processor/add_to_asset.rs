@@ -1,6 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_core::types::{ExternalPluginAdapterKey, PluginAuthority};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
+use solana_program::{
+    account_info::AccountInfo, clock::Clock, entrypoint::ProgramResult, sysvar::Sysvar,
+};
 
 use crate::{
     error::BglDoughError,
@@ -10,12 +12,12 @@ use crate::{
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
-pub struct AddToAssetV1Args {
+pub(crate) struct AddToAssetV1Args {
     /// The name of the Dough Pet.
     pub name: String,
 }
 
-pub(crate) fn add_to_asset<'a>(
+pub(crate) fn add_to_asset_v1<'a>(
     accounts: &'a [AccountInfo<'a>],
     args: AddToAssetV1Args,
 ) -> ProgramResult {
@@ -32,7 +34,7 @@ pub(crate) fn add_to_asset<'a>(
         return Err(BglDoughError::InvalidProgramSigner.into());
     }
 
-    let dough_data = DoughData::new(args.name).try_to_vec()?;
+    let dough_data = DoughData::new(args.name, Clock::get()?.unix_timestamp).try_to_vec()?;
     mpl_core::instructions::WriteExternalPluginAdapterDataV1Cpi {
         __program: ctx.accounts.mpl_core_program,
         asset: ctx.accounts.asset,

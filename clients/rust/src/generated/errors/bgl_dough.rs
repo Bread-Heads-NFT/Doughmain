@@ -25,6 +25,15 @@ pub enum BglDoughError {
     /// 4 (0x4) - Invalid Program Signer
     #[error("Invalid Program Signer")]
     InvalidProgramSigner,
+    /// 5 (0x5) - Invalid Asset Escrow
+    #[error("Invalid Asset Escrow")]
+    InvalidAssetEscrow,
+    /// 6 (0x6) - Invalid Token Program
+    #[error("Invalid Token Program")]
+    InvalidTokenProgram,
+    /// 7 (0x7) - Invalid Associated Token Program
+    #[error("Invalid Associated Token Program")]
+    InvalidAssociatedTokenProgram,
 }
 
 impl solana_program::program_error::PrintProgramError for BglDoughError {

@@ -117,6 +117,178 @@
         "type": "u8",
         "value": 1
       }
+    },
+    {
+      "name": "CrankV1",
+      "accounts": [
+        {
+          "name": "asset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the asset that will host the Dough Pet"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the collection with a LinkedAppData for Dough Pets"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The payer for additional rent"
+          ]
+        },
+        {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The program signer which is writing to the Dough Pet"
+          ]
+        },
+        {
+          "name": "mplCoreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
+      "name": "FeedSplTokenV1",
+      "accounts": [
+        {
+          "name": "asset",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the asset being fed"
+          ]
+        },
+        {
+          "name": "collection",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the VPet collection"
+          ]
+        },
+        {
+          "name": "escrow",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The PDA of the virtual pet from the asset"
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The address of the SPL Token mint"
+          ]
+        },
+        {
+          "name": "feederAta",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the SPL Token account of the feeder"
+          ]
+        },
+        {
+          "name": "escrowAta",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the SPL Token account of the asset"
+          ]
+        },
+        {
+          "name": "feeder",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The address of the feeder"
+          ]
+        },
+        {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The global signer for the program"
+          ]
+        },
+        {
+          "name": "mplCoreProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The MPL Core program"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program"
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The SPL Token program"
+          ]
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "The associated token program"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "feedSplTokenV1Args",
+          "type": {
+            "defined": "FeedSplTokenV1Args"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
+      }
     }
   ],
   "types": [
@@ -128,6 +300,18 @@
           {
             "name": "name",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeedSplTokenV1Args",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
           }
         ]
       }
@@ -152,6 +336,14 @@
           {
             "name": "hunger",
             "type": "u8"
+          },
+          {
+            "name": "points",
+            "type": "u32"
+          },
+          {
+            "name": "lastCrank",
+            "type": "i64"
           }
         ]
       }
@@ -182,6 +374,21 @@
       "code": 4,
       "name": "InvalidProgramSigner",
       "msg": "Invalid Program Signer"
+    },
+    {
+      "code": 5,
+      "name": "InvalidAssetEscrow",
+      "msg": "Invalid Asset Escrow"
+    },
+    {
+      "code": 6,
+      "name": "InvalidTokenProgram",
+      "msg": "Invalid Token Program"
+    },
+    {
+      "code": 7,
+      "name": "InvalidAssociatedTokenProgram",
+      "msg": "Invalid Associated Token Program"
     }
   ],
   "metadata": {

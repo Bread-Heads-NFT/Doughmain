@@ -4,7 +4,7 @@ import { CollectionV1, createCollection, ExternalPluginAdapterSchema, fetchColle
 import { addToCollectionV1, PROGRAM_SIGNER } from '../src';
 import { createUmi } from './_setup';
 
-test('it can create new accounts', async (t) => {
+test('it can install Dough Pets on a collection', async (t) => {
   // Given a Umi instance and a new signer.
   const umi = await createUmi();
   const collection = generateSigner(umi);

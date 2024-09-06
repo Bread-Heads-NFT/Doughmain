@@ -9,7 +9,7 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
 /// Accounts.
-pub struct AddToAssetV1 {
+pub struct CrankV1 {
     /// The address of the asset that will host the Dough Pet
     pub asset: solana_program::pubkey::Pubkey,
     /// The address of the collection with a LinkedAppData for Dough Pets
@@ -24,17 +24,13 @@ pub struct AddToAssetV1 {
     pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl AddToAssetV1 {
-    pub fn instruction(
-        &self,
-        args: AddToAssetV1InstructionArgs,
-    ) -> solana_program::instruction::Instruction {
-        self.instruction_with_remaining_accounts(args, &[])
+impl CrankV1 {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
+        self.instruction_with_remaining_accounts(&[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: AddToAssetV1InstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
@@ -61,9 +57,7 @@ impl AddToAssetV1 {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = AddToAssetV1InstructionData::new().try_to_vec().unwrap();
-        let mut args = args.try_to_vec().unwrap();
-        data.append(&mut args);
+        let data = CrankV1InstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::BGL_DOUGH_ID,
@@ -74,23 +68,17 @@ impl AddToAssetV1 {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-struct AddToAssetV1InstructionData {
+struct CrankV1InstructionData {
     discriminator: u8,
 }
 
-impl AddToAssetV1InstructionData {
+impl CrankV1InstructionData {
     fn new() -> Self {
-        Self { discriminator: 1 }
+        Self { discriminator: 2 }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct AddToAssetV1InstructionArgs {
-    pub name: String,
-}
-
-/// Instruction builder for `AddToAssetV1`.
+/// Instruction builder for `CrankV1`.
 ///
 /// ### Accounts:
 ///
@@ -101,18 +89,17 @@ pub struct AddToAssetV1InstructionArgs {
 ///   4. `[optional]` mpl_core_program (default to `CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d`)
 ///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
-pub struct AddToAssetV1Builder {
+pub struct CrankV1Builder {
     asset: Option<solana_program::pubkey::Pubkey>,
     collection: Option<solana_program::pubkey::Pubkey>,
     payer: Option<solana_program::pubkey::Pubkey>,
     program_signer: Option<solana_program::pubkey::Pubkey>,
     mpl_core_program: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    name: Option<String>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl AddToAssetV1Builder {
+impl CrankV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -158,11 +145,6 @@ impl AddToAssetV1Builder {
         self.system_program = Some(system_program);
         self
     }
-    #[inline(always)]
-    pub fn name(&mut self, name: String) -> &mut Self {
-        self.name = Some(name);
-        self
-    }
     /// Add an aditional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
@@ -183,7 +165,7 @@ impl AddToAssetV1Builder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = AddToAssetV1 {
+        let accounts = CrankV1 {
             asset: self.asset.expect("asset is not set"),
             collection: self.collection.expect("collection is not set"),
             payer: self.payer.expect("payer is not set"),
@@ -197,16 +179,13 @@ impl AddToAssetV1Builder {
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = AddToAssetV1InstructionArgs {
-            name: self.name.clone().expect("name is not set"),
-        };
 
-        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
+        accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
 }
 
-/// `add_to_asset_v1` CPI accounts.
-pub struct AddToAssetV1CpiAccounts<'a, 'b> {
+/// `crank_v1` CPI accounts.
+pub struct CrankV1CpiAccounts<'a, 'b> {
     /// The address of the asset that will host the Dough Pet
     pub asset: &'b solana_program::account_info::AccountInfo<'a>,
     /// The address of the collection with a LinkedAppData for Dough Pets
@@ -221,8 +200,8 @@ pub struct AddToAssetV1CpiAccounts<'a, 'b> {
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `add_to_asset_v1` CPI instruction.
-pub struct AddToAssetV1Cpi<'a, 'b> {
+/// `crank_v1` CPI instruction.
+pub struct CrankV1Cpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The address of the asset that will host the Dough Pet
@@ -237,15 +216,12 @@ pub struct AddToAssetV1Cpi<'a, 'b> {
     pub mpl_core_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The system program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
-    /// The arguments for the instruction.
-    pub __args: AddToAssetV1InstructionArgs,
 }
 
-impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
+impl<'a, 'b> CrankV1Cpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: AddToAssetV1CpiAccounts<'a, 'b>,
-        args: AddToAssetV1InstructionArgs,
+        accounts: CrankV1CpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -255,7 +231,6 @@ impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
             program_signer: accounts.program_signer,
             mpl_core_program: accounts.mpl_core_program,
             system_program: accounts.system_program,
-            __args: args,
         }
     }
     #[inline(always)]
@@ -323,9 +298,7 @@ impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = AddToAssetV1InstructionData::new().try_to_vec().unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
-        data.append(&mut args);
+        let data = CrankV1InstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::BGL_DOUGH_ID,
@@ -352,7 +325,7 @@ impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `AddToAssetV1` via CPI.
+/// Instruction builder for `CrankV1` via CPI.
 ///
 /// ### Accounts:
 ///
@@ -362,13 +335,13 @@ impl<'a, 'b> AddToAssetV1Cpi<'a, 'b> {
 ///   3. `[]` program_signer
 ///   4. `[]` mpl_core_program
 ///   5. `[]` system_program
-pub struct AddToAssetV1CpiBuilder<'a, 'b> {
-    instruction: Box<AddToAssetV1CpiBuilderInstruction<'a, 'b>>,
+pub struct CrankV1CpiBuilder<'a, 'b> {
+    instruction: Box<CrankV1CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
+impl<'a, 'b> CrankV1CpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(AddToAssetV1CpiBuilderInstruction {
+        let instruction = Box::new(CrankV1CpiBuilderInstruction {
             __program: program,
             asset: None,
             collection: None,
@@ -376,7 +349,6 @@ impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
             program_signer: None,
             mpl_core_program: None,
             system_program: None,
-            name: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -429,11 +401,6 @@ impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
         self.instruction.system_program = Some(system_program);
         self
     }
-    #[inline(always)]
-    pub fn name(&mut self, name: String) -> &mut Self {
-        self.instruction.name = Some(name);
-        self
-    }
     /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
@@ -475,10 +442,7 @@ impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = AddToAssetV1InstructionArgs {
-            name: self.instruction.name.clone().expect("name is not set"),
-        };
-        let instruction = AddToAssetV1Cpi {
+        let instruction = CrankV1Cpi {
             __program: self.instruction.__program,
 
             asset: self.instruction.asset.expect("asset is not set"),
@@ -501,7 +465,6 @@ impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
                 .instruction
                 .system_program
                 .expect("system_program is not set"),
-            __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -510,7 +473,7 @@ impl<'a, 'b> AddToAssetV1CpiBuilder<'a, 'b> {
     }
 }
 
-struct AddToAssetV1CpiBuilderInstruction<'a, 'b> {
+struct CrankV1CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     asset: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     collection: Option<&'b solana_program::account_info::AccountInfo<'a>>,
@@ -518,7 +481,6 @@ struct AddToAssetV1CpiBuilderInstruction<'a, 'b> {
     program_signer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mpl_core_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    name: Option<String>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

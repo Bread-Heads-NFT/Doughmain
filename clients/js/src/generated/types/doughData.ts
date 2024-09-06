@@ -8,8 +8,10 @@
 
 import {
   Serializer,
+  i64,
   string,
   struct,
+  u32,
   u8,
 } from '@metaplex-foundation/umi/serializers';
 
@@ -18,9 +20,18 @@ export type DoughData = {
   health: number;
   happiness: number;
   hunger: number;
+  points: number;
+  lastCrank: bigint;
 };
 
-export type DoughDataArgs = DoughData;
+export type DoughDataArgs = {
+  name: string;
+  health: number;
+  happiness: number;
+  hunger: number;
+  points: number;
+  lastCrank: number | bigint;
+};
 
 export function getDoughDataSerializer(): Serializer<DoughDataArgs, DoughData> {
   return struct<DoughData>(
@@ -29,6 +40,8 @@ export function getDoughDataSerializer(): Serializer<DoughDataArgs, DoughData> {
       ['health', u8()],
       ['happiness', u8()],
       ['hunger', u8()],
+      ['points', u32()],
+      ['lastCrank', i64()],
     ],
     { description: 'DoughData' }
   ) as Serializer<DoughDataArgs, DoughData>;
